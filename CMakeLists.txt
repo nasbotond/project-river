@@ -1,34 +1,50 @@
-cmake_minimum_required (VERSION 3.10)
+cmake_minimum_required(VERSION 3.10)
 
-# add_definitions ( -std=c++17 )
+project(project-river)
 set ( CMAKE_CXX_STANDARD 17 )
 
-project ( project-river )
-
-# set ( CMAKE_BUILD_TYPE Debug )
-# if ( UNIX )
-#     set ( OpenCV_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../opencv/opencv_build/" )
-# endif()
-set ( Qt5_DIR "/opt/homebrew/Cellar/qt@5/5.15.7/lib/cmake/Qt5/")
 set ( source_dir "${CMAKE_CURRENT_SOURCE_DIR}/src/" )
-set ( optical_flow "${CMAKE_CURRENT_SOURCE_DIR}/include/project-river/" )
+set ( include_dir "${CMAKE_CURRENT_SOURCE_DIR}/include/project-river/" )
+set ( imgui_dir "${CMAKE_CURRENT_SOURCE_DIR}/imgui/" )
 
-set(CMAKE_AUTOMOC ON)
-# set(CMAKE_AUTORCC ON)
-# set(CMAKE_AUTOUIC ON)
+set(SOURCES
+  ${source_dir}/app.cpp
+  ${source_dir}/main.cpp
+  ${source_dir}/mat_viewer.cpp
+  ${source_dir}/ui.cpp
+  ${source_dir}/video_viewer.cpp
+  ${source_dir}/optical_flow_viewer.cpp
+  ${imgui_dir}/imgui.cpp
+  ${imgui_dir}/imgui_demo.cpp
+  ${imgui_dir}/imgui_draw.cpp
+  ${imgui_dir}/imgui_widgets.cpp
+  ${imgui_dir}/imgui_tables.cpp
+  ${imgui_dir}/imgui_impl_glfw.cpp
+  ${imgui_dir}/imgui_impl_opengl3.cpp
+  )
 
 find_package ( OpenCV REQUIRED )
-# include_directories ( ${OpenCV_DIR} )
 include_directories ( ${OpenCV_INCLUDE_DIRS} )
-include_directories ( ${optical_flow} )
-find_package ( Qt5 COMPONENTS Widgets REQUIRED )
-# qt_standard_project_setup()
-qt5_wrap_cpp(execute_SRC ${optical_flow}/mainwindow.h)
+include_directories ( ${include_dir} )
 
-add_executable ( execute ${source_dir}/main.cpp ${source_dir}/mainwindow.cpp ${execute_SRC} )
-target_link_libraries ( execute ${OpenCV_LIBS} Qt5::Widgets )
+if(APPLE)
+  find_library(COCOA_LIBRARY Cocoa)
+  find_library(OPENGL_LIBRARY OpenGL)
+  find_library(IOKIT_LIBRARY IOKit)
+  find_library(COREVIDEO_LIBRARY CoreVideo)
+  find_package(glfw3 REQUIRED)
+  set(EXTRA_LIBS
+    ${COCOA_LIBRARY}
+    ${OPENGL_LIBRARY}
+    ${IOKIT_LIBRARY}
+    ${COREVIDEO_LIBRARY}
+    ${OpenCV_LIBS}
+    glfw
+    )
+endif(APPLE)
 
-# set_target_properties(execute PROPERTIES
-#     WIN32_EXECUTABLE ON
-#     MACOSX_BUNDLE ON
-# )
+
+include_directories(${imgui_dir})
+add_executable(execute ${SOURCES})
+target_link_libraries(execute ${EXTRA_LIBS})
+
