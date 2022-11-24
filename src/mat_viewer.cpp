@@ -11,13 +11,22 @@ GLuint MatViewer::matToTexture(const cv::Mat& mat)
 	// Bind to our texture handle
 	glBindTexture(GL_TEXTURE_2D, textureID);
 
+	// // Set texture interpolation methods for minification and magnification
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	// // Set texture clamping method
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	// Set texture interpolation methods for minification and magnification
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	// Set texture clamping method
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	// Set incoming texture format to:
 	// GL_BGR       for CV_CAP_OPENNI_BGR_IMAGE,
@@ -40,9 +49,10 @@ GLuint MatViewer::matToTexture(const cv::Mat& mat)
 		GL_UNSIGNED_BYTE,  // Image data type
 		mat.ptr());        // The actual image data itself
 
+	// glGenerateMipmap(GL_TEXTURE_2D);
+
 	return textureID;
 }
-
 
 void MatViewer::reloadTexture()
 {
@@ -63,10 +73,8 @@ void MatViewer::reloadTexture()
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-
 MatViewer::MatViewer(std::string name, cv::Mat& mat)
 {
-
 	std::cout << "Mat: " << mat.cols << " x " << mat.rows << std::endl;
 
 	this->name = name;
@@ -85,36 +93,37 @@ MatViewer::~MatViewer()
 
 void MatViewer::addToGUI(bool withControls, bool withTooltip)
 {
-	//Skip if not initialized
-	if(!initialized()) {
+	// Skip if not initialized
+	if(!initialized()) 
+	{
 		ImGui::Text("MatViewer not initialized");
 		return;
 	}
 
 	ImGui::Text(name.c_str());
 
-	//Display scale
-	ImGui::SliderFloat((name + " Display Scale").c_str(), &imageScale, 0.1, 5, "%.3f"); //, 2.f);
+	// Display scale
+	ImGuiSliderFlags flags = 1;
+	ImGui::SliderFloat((name + " Display Scale").c_str(), &imageScale, 0.1, 5, "%.3f", flags);//, 2.f);
 
-	//Get data about the image and texture
+	// Get data about the image and texture
 	ImGuiIO& io = ImGui::GetIO();
 	float myW = (float)width,
 	myH = (float)height;
 
-	//Scale the image based on the user's preference
+	// Scale the image based on the user's preference
 	myW *= imageScale;
 	myH *= imageScale;
 
 	ImVec2 pos = ImGui::GetCursorScreenPos();
 
-	//Show the image
+	// Show the image
 	ImGui::Image((void*)(intptr_t)textureID, ImVec2(myW, myH));
 
-	//Show a magnified view of the image if hovered
-	if (ImGui::IsItemHovered())
+	// Show a magnified view of the image if hovered
+	if(ImGui::IsItemHovered())
 	{
-
-		//Create variables that will be used later
+		// Create variables that will be used later
 		ImVec2 uv_min = ImVec2(0.0f, 0.0f);                 // Top-left
 		ImVec2 uv_max = ImVec2(1.0f, 1.0f);                 // Lower-right
 		ImVec4 tint_col = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);   // No tint
@@ -137,7 +146,7 @@ void MatViewer::addToGUI(bool withControls, bool withTooltip)
 		ImGui::EndTooltip();
 	}
 
-	//Print data about the image
+	// Print data about the image
 	ImGui::Text("Texture ID = %d", textureID);
 	ImGui::Text("size = %d x %d", width, height);
 }
@@ -151,8 +160,8 @@ void MatViewer::update()
 
 void MatViewer::generateTexture()
 {
-
-	if (mat->empty()) {
+	if(mat->empty()) 
+	{
 		std::cout << "image empty" << std::endl;
 		return;
 	}
@@ -160,11 +169,10 @@ void MatViewer::generateTexture()
 	//Destroy the last texture
 	if(textureID) glDeleteTextures(1, &textureID);
 
-
-	//Generate the texture
+	// Generate the texture
 	textureID = matToTexture(*mat);
 
-	//Update the dimensions
+	// Update the dimensions
 	width = mat->cols;
 	height = mat->rows;
 

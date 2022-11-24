@@ -27,7 +27,6 @@ class OpticalFlowViewer
 
         /*Returns the index of the current frame*/
         int getCurrentFrame();
-        int getPreviousFrame();
         /*Sets the index of the current frame*/
         void setCurrentFrame(int desiredFrame);
         /*Attempts to advance to the next frame. This is a blocking function and may take time*/
@@ -38,11 +37,15 @@ class OpticalFlowViewer
         cv::Mat mat_curr;
         /*The next OpenCV image*/
         cv::Mat mat_next;
+        /*The flow Mat to display*/
         cv::Mat flow;
-        /*The address of the current video feed*/
-        cv::VideoCapture* video;
+        /*Dense optical flow algorithm*/
         cv::Mat denseOpticalFlowMat(cv::Mat &prev, cv::Mat &next);
+        /*KLT optical flow algorithm*/
+        cv::Mat KLTOpticalFlow(cv::Mat &prev, cv::Mat &next);
+        /*Current frame index*/
         int currentFrame;
+        /*Vector of frames as Mats*/
         std::vector<cv::Mat> frames;
         
     private:

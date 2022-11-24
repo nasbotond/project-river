@@ -1,10 +1,7 @@
 #include "app.hpp"
 
-using namespace std;
-
 namespace gui 
 {
-
 	bool initialized = false;
 	GLFWwindow* currentGLFWWindow = nullptr;
 	int window_width = 0, window_height = 0;
@@ -38,7 +35,7 @@ namespace gui
 
 	void destroy() 
 	{
-		cout << "Closing application";
+		std::cout << "Closing application";
 
 		// Close ImGui
 		ImGui_ImplOpenGL3_Shutdown();

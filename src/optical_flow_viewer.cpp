@@ -2,19 +2,13 @@
 
 OpticalFlowViewer::OpticalFlowViewer(std::vector<cv::Mat>& mats)
 {
-	// video = &videoCapture;
-    // video->set(CAP_PROP_POS_FRAMES, 1);
-    // cout << (int)video->get(CAP_PROP_POS_FRAMES) << endl;
-	// *video >> mat_curr;
-    // cout << (int)video->get(CAP_PROP_POS_FRAMES) << endl;
-    // *video >> mat_next;
     frames = mats;
     mat_curr = frames.at(0);
     mat_next = frames.at(1);
     currentFrame = 0;
 
     flow = denseOpticalFlowMat(mat_curr, mat_next);
-    std::cout << "worked" << std::endl;
+    // flow = KLTOpticalFlow(mat_curr, mat_next);
 
 	matViewer1 = new MatViewer("Optical Flow Video", flow);
 }
@@ -97,8 +91,9 @@ bool OpticalFlowViewer::nextFrame()
 		std::cerr << "Mat is empty" << std::endl;
 		return false;
 	}
-    // *video >> mat_next;    
+  
     flow = denseOpticalFlowMat(mat_curr, mat_next);
+    // flow = KLTOpticalFlow(mat_curr, mat_next);
 
 	matViewer1->update();
 	return true;
@@ -106,18 +101,18 @@ bool OpticalFlowViewer::nextFrame()
 
 int OpticalFlowViewer::numFrames()
 {
-	// return (int)video->get(CAP_PROP_FRAME_COUNT);
     return frames.size();
 }
 
 cv::Mat OpticalFlowViewer::denseOpticalFlowMat(cv::Mat &prev, cv::Mat &next)
 {
     cv::Mat prvs;
+    // cv::cvtColor(prev, prvs, cv::COLOR_RGB2GRAY);
     cv::cvtColor(prev, prvs, cv::COLOR_BGR2GRAY);
 
     cv::Mat nxt, original;
-
-    cvtColor(next, nxt, cv::COLOR_BGR2GRAY);
+    // cv::cvtColor(next, nxt, cv::COLOR_RGB2GRAY);
+    cv::cvtColor(next, nxt, cv::COLOR_BGR2GRAY);
     cv::Mat flowt(prvs.size(), CV_32FC2);
 
     calcOpticalFlowFarneback(prvs, nxt, flowt, 0.5, 3, 15, 3, 5, 1.2, 0);
@@ -137,4 +132,53 @@ cv::Mat OpticalFlowViewer::denseOpticalFlowMat(cv::Mat &prev, cv::Mat &next)
         }
     }
     return original;
+}
+
+cv::Mat OpticalFlowViewer::KLTOpticalFlow(cv::Mat &prev, cv::Mat &next)
+{
+    // Create some random colors
+    std::vector<cv::Scalar> colors;
+    cv::RNG rng;
+    for(int i = 0; i < 100; i++)
+    {
+        int r = rng.uniform(0, 256);
+        int g = rng.uniform(0, 256);
+        int b = rng.uniform(0, 256);
+        colors.push_back(cv::Scalar(r,g,b));
+    }
+
+    cv::Mat prvs;
+    std::vector<cv::Point2f> p0, p1;
+    // Take first frame and find corners in it
+    cvtColor(prev, prvs, cv::COLOR_BGR2GRAY);
+    goodFeaturesToTrack(prvs, p0, 100, 0.3, 7, cv::Mat(), 7, false, 0.04);
+
+    // Create a mask image for drawing purposes
+    cv::Mat mask = cv::Mat::zeros(prev.size(), prev.type());
+
+    cv::Mat nxt;
+    
+    cv::cvtColor(next, nxt, cv::COLOR_BGR2GRAY);
+
+    // calculate optical flow
+    std::vector<uchar> status;
+    std::vector<float> err;
+    cv::TermCriteria criteria = cv::TermCriteria((cv::TermCriteria::COUNT) + (cv::TermCriteria::EPS), 10, 0.03);
+    cv::calcOpticalFlowPyrLK(prvs, nxt, p0, p1, status, err, cv::Size(15,15), 2, criteria);
+    std::vector<cv::Point2f> good_new;
+
+    for(uint i = 0; i < p0.size(); i++)
+    {
+        // Select good points
+        if(status[i] == 1)
+        {
+            good_new.push_back(p1[i]);
+            // draw the tracks
+            cv::line(mask, p1[i], p0[i], colors[i], 2);
+            cv::circle(next, p1[i], 5, colors[i], -1);
+        }
+    }
+    cv::Mat image;
+    cv::add(next, mask, image);
+    return image;
 }

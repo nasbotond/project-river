@@ -140,37 +140,6 @@ namespace gui
 			ImGui::Begin("Algorithm", &showOpticalFlow, flags);
 			optFlowViewer->addToGUI();
 			ImGui::End();
-
-			// static bool loadPerFrame = false;
-			// ImGui::Checkbox("Load per frame", &loadPerFrame);
-			// if(loadPerFrame)
-			// {
-			// 	ImGui::Text("Loading per frame");
-			// 	Mat m;
-			// 	videoCapture.retrieve(m);
-			// }
-
-			// static bool live = false;
-			// ImGui::Checkbox("Process per frame", &live);
-			// if(live)
-			// {
-			// 	ImGui::Text("Processing per frame");
-			// }
-
-			// if(ImGui::Button("Calculate Optical Flow"))
-			// {
-			// 	// std::string filename = "../";
-			// 	// // MEDIA_DIRECTORY is defined in the root-level CMake script
-			// 	// filename += "fishes.avi";
-			// 	VideoCapture cap = VideoCapture("../fishes.avi");
-			// 	OpticalFlow::denseOpticalFlow(cap);
-
-			// 	// videoViewer = new VideoViewer(videoCapture);
-			// 	// Mat m;
-			// 	// videoCapture.retrieve(m);
-			// }
-
-			// ImGui::End();
 		}
 	}
 
@@ -192,14 +161,13 @@ namespace gui
 		// Load the video
 		// Get an image name
 		std::string filename = "../sec07_mot_mpg/";
-		// MEDIA_DIRECTORY is defined in the root-level CMake script
+		// filename += "halak1.mpg";
+		// filename += "motor.avi";
 		filename += "fishes.avi";
 		videoCapture = cv::VideoCapture(filename);
-		// OpticalFlow::denseOpticalFlow(videoCapture);
-		// videoCapture1 = VideoCapture("../optical_flow.avi");
 		std::vector<cv::Mat> captureMats = std::vector<cv::Mat>(videoCapture.get(cv::CAP_PROP_FRAME_COUNT));
+
 		int i = 0;
-		// std::cout << captureMats.size() << std::endl;
 		while(1)
 		{
 			cv::Mat frame;
@@ -207,7 +175,7 @@ namespace gui
 			videoCapture >> frame;
 
 			// If the frame is empty, break immediately
-			if (frame.empty())
+			if(frame.empty())
 			{
 				break;
 			}

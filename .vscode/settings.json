@@ -11,6 +11,17 @@
         "set": "cpp",
         "system_error": "cpp",
         "unordered_map": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "iostream": "cpp",
+        "array": "cpp",
+        "bitset": "cpp",
+        "initializer_list": "cpp",
+        "queue": "cpp",
+        "random": "cpp",
+        "stack": "cpp",
+        "string_view": "cpp",
+        "iterator": "cpp",
+        "utility": "cpp",
+        "iosfwd": "cpp"
     }
 }
