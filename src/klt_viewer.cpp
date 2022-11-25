@@ -19,6 +19,11 @@ KLTViewer::KLTViewer(std::vector<cv::Mat> &mats)
 
 void KLTViewer::addToGUI(bool manualPlayback, bool imageControls)
 {
+    if(ImGui::Button("Save to video"))
+    {
+        calculateKLTToVideo(originalFrames, pyr_size, window_size, max_corners, min_distance, block_size);
+    }
+
 	static bool loop = false;
 
 	if(manualPlayback)
@@ -197,6 +202,81 @@ void KLTViewer::calculateKLT(std::vector<cv::Mat> &originalFrames, std::vector<c
         old_gray = frame_gray.clone();
         p0 = good_new;
         result.at(frameIndex-2) = img;
+    }
+    // return result;
+}
+
+void KLTViewer::calculateKLTToVideo(std::vector<cv::Mat> &originalFrames, int &pyr_size, int &window_size, int &max_corners, int &min_distance, int &block_size)
+{
+    const std::string NAME = "../optical_flow.avi";
+    int ex = static_cast<int>(cv::VideoWriter::fourcc('M','J','P','G'));
+
+    // Transform from int to char via Bitwise operators
+    char EXT[] = {(char)(ex & 0XFF) , (char)((ex & 0XFF00) >> 8),(char)((ex & 0XFF0000) >> 16),(char)((ex & 0XFF000000) >> 24), 0};
+
+    cv::Size S = cv::Size((int) originalFrames.at(0).cols, (int) originalFrames.at(0).rows);
+    cv::VideoWriter outputVideo;
+
+    outputVideo.open(NAME, ex, 5, S, true);
+
+    // std::vector<cv::Mat> result = std::vector<cv::Mat>(mats.size());
+    // Create some random colors
+    std::vector<cv::Scalar> colors;
+    cv::RNG rng;
+    for(int i = 0; i < 100; i++)
+    {
+        int r = rng.uniform(0, 256);
+        int g = rng.uniform(0, 256);
+        int b = rng.uniform(0, 256);
+        colors.push_back(cv::Scalar(r,g,b));
+    }
+    int frameIndex = 0;
+    cv::Mat old_frame, old_gray;
+    std::vector<cv::Point2f> p0, p1;
+    // Take first frame and find corners in it
+    old_frame = originalFrames.at(frameIndex);
+    frameIndex++;
+
+    cv::cvtColor(old_frame, old_gray, cv::COLOR_BGR2GRAY);
+    cv::goodFeaturesToTrack(old_gray, p0, max_corners, 0.1, min_distance, cv::Mat(), block_size, false, 0.04);
+
+    // Create a mask image for drawing purposes
+    cv::Mat mask = cv::Mat::zeros(old_frame.size(), old_frame.type());
+    while(frameIndex < originalFrames.size()-1)
+    {
+        cv::Mat frame, frame_gray;
+        frame = originalFrames.at(frameIndex);
+        frameIndex++;
+        if(frame.empty())
+            break;
+        cv::cvtColor(frame, frame_gray, cv::COLOR_BGR2GRAY);
+        cv::Mat frame_copy;
+        frame.copyTo(frame_copy);
+        // calculate optical flow
+        std::vector<uchar> status;
+        std::vector<float> err;
+        cv::TermCriteria criteria = cv::TermCriteria((cv::TermCriteria::COUNT) + (cv::TermCriteria::EPS), 10, 0.03);
+        cv::calcOpticalFlowPyrLK(old_gray, frame_gray, p0, p1, status, err, cv::Size(window_size, window_size), pyr_size, criteria);
+        std::vector<cv::Point2f> good_new;
+        for(uint i = 0; i < p0.size(); i++)
+        {
+            // Select good points
+            if(status[i] == 1) 
+            {
+                good_new.push_back(p1[i]);
+                // draw the tracks
+                // cv::line(mask, p1[i], p0[i], colors[i], 2);
+                // cv::circle(frame_copy, p1[i], 5, colors[i], -1);
+                cv::circle(frame_copy, p1[i], 4, cv::Scalar(0, 0, 255), -1);
+            }
+        }
+        cv::Mat img;
+        cv::add(frame_copy, mask, img);
+
+        // Now update the previous frame and previous points
+        old_gray = frame_gray.clone();
+        p0 = good_new;
+        outputVideo << img;
     }
     // return result;
 }

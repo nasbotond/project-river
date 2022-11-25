@@ -34,8 +34,10 @@ class KLTViewer
     int numFrames();
     /*The current OpenCV image*/
     cv::Mat mat;
-
+    /*Calculate KLT*/
     void calculateKLT(std::vector<cv::Mat> &originalFrames, std::vector<cv::Mat> &result, int &pyr_size, int &window_size, int &max_corners, int &min_distance, int &block_size);
+    /*Calculate KLT and save to video*/
+    void calculateKLTToVideo(std::vector<cv::Mat> &originalFrames, int &pyr_size, int &window_size, int &max_corners, int &min_distance, int &block_size);
     /*Current frame index*/
     int currentFrame;
     /*Vector of frames as Mats*/
@@ -51,6 +53,7 @@ private:
     /*True if playing*/
     bool isPlaying = false;
 
+    /*Parameters*/
     int pyr_size;
     int window_size;
     int max_corners;

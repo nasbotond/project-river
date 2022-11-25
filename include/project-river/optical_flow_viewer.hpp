@@ -41,11 +41,13 @@ class OpticalFlowViewer
         cv::Mat flow;
         /*Dense optical flow algorithm*/
         void denseOpticalFlowMat(cv::Mat &prev, cv::Mat &next, cv::Mat &flow, int &pyr_size, int &window_size, int &iterations);
+        /*Save to video*/
+        void denseOpticalFlowToVideo(std::vector<cv::Mat> &frames, int &pyr_size, int &window_size, int &iterations);
         /*Current frame index*/
         int currentFrame;
         /*Vector of frames as Mats*/
         std::vector<cv::Mat> frames;
-        // int algorithm;
+        /*Update Mat frame with new parameters*/
         void updateFrame(int pyr_size, int window_size, int iterations);
         
     private:
@@ -53,6 +55,7 @@ class OpticalFlowViewer
         MatViewer matViewer1;
         /*True if playing*/
         bool isPlaying = false;
+        
         /*Pyramid size*/
         int pyr_size;
         int window_size;
