@@ -11,7 +11,7 @@ class KLTViewer
     /*
     Binds this VideoViewer to an existing VideoCapture instance.
     */
-    KLTViewer(std::vector<cv::Mat>& mats);
+    KLTViewer(std::vector<cv::Mat> &mats);
 
     /*
     Uses ImGui to render an image preview.
@@ -35,7 +35,7 @@ class KLTViewer
     /*The current OpenCV image*/
     cv::Mat mat;
 
-    std::vector<cv::Mat> calculateKLT(std::vector<cv::Mat> &originalFrames);
+    void calculateKLT(std::vector<cv::Mat> &originalFrames, std::vector<cv::Mat> &result, int &pyr_size, int &window_size, int &max_corners, int &min_distance, int &block_size);
     /*Current frame index*/
     int currentFrame;
     /*Vector of frames as Mats*/
@@ -43,11 +43,17 @@ class KLTViewer
     /*Vector of frames as Mats*/
     std::vector<cv::Mat> kltFrames;
     // int algorithm;
-    void updateFrame(int pyr_size);
+    void updateFrame(int pyr_size, int window_size, int max_corners, int min_distance, int block_size);
     
 private:
     /*This class relies on MatViewer to render the matrix*/
-    MatViewer* matViewer;
+    MatViewer matViewer;
     /*True if playing*/
     bool isPlaying = false;
+
+    int pyr_size;
+    int window_size;
+    int max_corners;
+    int min_distance;
+    int block_size;
 };

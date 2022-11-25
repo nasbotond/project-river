@@ -194,9 +194,9 @@ namespace gui
 			captureMats.at(i) = frame;
 			i++;
 		}
-		
+		// std::vector<cv::Mat> captureMats1 = captureMats;
 		videoViewer = new VideoViewer(videoCapture);
-		kltViewer = new KLTViewer(captureMats);
 		optFlowViewer = new OpticalFlowViewer(captureMats);
+		kltViewer = new KLTViewer(captureMats);		
 	}
 }

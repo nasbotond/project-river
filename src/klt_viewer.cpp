@@ -1,12 +1,20 @@
 #include "klt_viewer.hpp"
 
-KLTViewer::KLTViewer(std::vector<cv::Mat>& mats)
+KLTViewer::KLTViewer(std::vector<cv::Mat> &mats)
 {
     originalFrames = mats;
     currentFrame = 0;
-    kltFrames = calculateKLT(originalFrames);
+    pyr_size = 2;
+    window_size = 21;
+    max_corners = 100;
+    min_distance = 7;
+    block_size = 7;
+    // std::vector<cv::Mat> result = std::vector<cv::Mat>(originalFrames.size());
+    kltFrames = std::vector<cv::Mat>(originalFrames.size());
+    calculateKLT(originalFrames, kltFrames, pyr_size, window_size, max_corners, min_distance, block_size);
+    std::cout << kltFrames.at(0).size() << std::endl;
     mat = kltFrames.at(currentFrame);
-	matViewer = new MatViewer("KLT Video", mat);
+	matViewer = MatViewer("KLT Video", mat);
 }
 
 void KLTViewer::addToGUI(bool manualPlayback, bool imageControls)
@@ -51,18 +59,29 @@ void KLTViewer::addToGUI(bool manualPlayback, bool imageControls)
 		}
 	}
 
-    // if(ImGui::Button("Calc"))
-    // {
-    //     calculateKLT(video);
-    //     cv::VideoCapture kltCapture = cv::VideoCapture("../klt_points.avi");
-    //     video = &kltCapture;
-    //     video->set(cv::CAP_PROP_POS_FRAMES, 0);
-    //     *video >> mat;
-    //     matViewer = new MatViewer("KLT Video", mat);
+    if(ImGui::SliderInt("Pyramid Levels", &pyr_size, 2, 10))
+    {
+        updateFrame(pyr_size, window_size, max_corners, min_distance, block_size);
+    }
+    if(ImGui::SliderInt("Window Size", &window_size, 3, 21))
+    {
+        updateFrame(pyr_size, window_size, max_corners, min_distance, block_size);
+    }
+    if(ImGui::SliderInt("Maximum Corners", &max_corners, 80, 120))
+    {
+        updateFrame(pyr_size, window_size, max_corners, min_distance, block_size);
+    }
+    if(ImGui::SliderInt("Minimum Distance", &min_distance, 3, 15))
+    {
+        updateFrame(pyr_size, window_size, max_corners, min_distance, block_size);
+    }
+    if(ImGui::SliderInt("Block Size", &block_size, 3, 15))
+    {
+        updateFrame(pyr_size, window_size, max_corners, min_distance, block_size);
+    }
 
-        
-    // }
-    matViewer->addToGUI(imageControls);
+    // matViewer->addToGUI(imageControls);
+    matViewer.addToGUI(imageControls);
 }
 
 int KLTViewer::getCurrentFrame()
@@ -70,12 +89,13 @@ int KLTViewer::getCurrentFrame()
     return currentFrame;
 }
 
-void KLTViewer::updateFrame(int pyr_size)
+void KLTViewer::updateFrame(int pyr_size, int window_size, int max_corners, int min_distance, int block_size)
 {
-    kltFrames = calculateKLT(originalFrames);
+    calculateKLT(originalFrames, kltFrames, pyr_size, window_size, max_corners, min_distance, block_size);
     mat = kltFrames.at(currentFrame);
 
-	matViewer->update();
+	// matViewer->update();
+    matViewer.update();
 }
 
 void KLTViewer::setCurrentFrame(int desiredFrame)
@@ -107,7 +127,8 @@ bool KLTViewer::nextFrame()
 		return false;
 	}
 
-	matViewer->update();
+	// matViewer->update();
+    matViewer.update();
 	return true;
 }
 
@@ -116,9 +137,9 @@ int KLTViewer::numFrames()
     return kltFrames.size();
 }
 
-std::vector<cv::Mat> KLTViewer::calculateKLT(std::vector<cv::Mat>& mats)
+void KLTViewer::calculateKLT(std::vector<cv::Mat> &originalFrames, std::vector<cv::Mat> &result, int &pyr_size, int &window_size, int &max_corners, int &min_distance, int &block_size)
 {
-    std::vector<cv::Mat> result = std::vector<cv::Mat>(mats.size());
+    // std::vector<cv::Mat> result = std::vector<cv::Mat>(mats.size());
     // Create some random colors
     std::vector<cv::Scalar> colors;
     cv::RNG rng;
@@ -133,27 +154,29 @@ std::vector<cv::Mat> KLTViewer::calculateKLT(std::vector<cv::Mat>& mats)
     cv::Mat old_frame, old_gray;
     std::vector<cv::Point2f> p0, p1;
     // Take first frame and find corners in it
-    old_frame = mats.at(frameIndex);
+    old_frame = originalFrames.at(frameIndex);
     frameIndex++;
 
     cv::cvtColor(old_frame, old_gray, cv::COLOR_BGR2GRAY);
-    cv::goodFeaturesToTrack(old_gray, p0, 100, 0.3, 7, cv::Mat(), 7, false, 0.04);
+    cv::goodFeaturesToTrack(old_gray, p0, max_corners, 0.3, min_distance, cv::Mat(), block_size, false, 0.04);
 
     // Create a mask image for drawing purposes
     cv::Mat mask = cv::Mat::zeros(old_frame.size(), old_frame.type());
-    while(frameIndex < mats.size()-1)
+    while(frameIndex < originalFrames.size()-1)
     {
         cv::Mat frame, frame_gray;
-        frame = mats.at(frameIndex);
+        frame = originalFrames.at(frameIndex);
         frameIndex++;
         if(frame.empty())
             break;
         cv::cvtColor(frame, frame_gray, cv::COLOR_BGR2GRAY);
+        cv::Mat frame_copy;
+        frame.copyTo(frame_copy);
         // calculate optical flow
         std::vector<uchar> status;
         std::vector<float> err;
         cv::TermCriteria criteria = cv::TermCriteria((cv::TermCriteria::COUNT) + (cv::TermCriteria::EPS), 10, 0.03);
-        calcOpticalFlowPyrLK(old_gray, frame_gray, p0, p1, status, err, cv::Size(15,15), 2, criteria);
+        cv::calcOpticalFlowPyrLK(old_gray, frame_gray, p0, p1, status, err, cv::Size(window_size, window_size), pyr_size, criteria);
         std::vector<cv::Point2f> good_new;
         for(uint i = 0; i < p0.size(); i++)
         {
@@ -162,18 +185,18 @@ std::vector<cv::Mat> KLTViewer::calculateKLT(std::vector<cv::Mat>& mats)
             {
                 good_new.push_back(p1[i]);
                 // draw the tracks
-                cv::line(mask,p1[i], p0[i], colors[i], 2);
-                cv::circle(frame, p1[i], 5, colors[i], -1);
+                cv::line(mask, p1[i], p0[i], colors[i], 2);
+                cv::circle(frame_copy, p1[i], 5, colors[i], -1);
+                // cv::circle(frame_copy, cv::Point2f(100, 100), 20, cv::Scalar(0,0,0), 10);
             }
         }
         cv::Mat img;
-        cv::add(frame, mask, img);
+        cv::add(frame_copy, mask, img);
 
         // Now update the previous frame and previous points
         old_gray = frame_gray.clone();
         p0 = good_new;
-        result.at(frameIndex-1) = img;
-
+        result.at(frameIndex-2) = img;
     }
-    return result;
+    // return result;
 }

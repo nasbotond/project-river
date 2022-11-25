@@ -166,7 +166,7 @@ void MatViewer::generateTexture()
 		return;
 	}
 
-	//Destroy the last texture
+	// Destroy the last texture
 	if(textureID) glDeleteTextures(1, &textureID);
 
 	// Generate the texture

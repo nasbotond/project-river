@@ -12,7 +12,7 @@ class OpticalFlowViewer
         /*
         Binds this VideoViewer to an existing VideoCapture instance.
         */
-        OpticalFlowViewer(std::vector<cv::Mat>& mats);
+        OpticalFlowViewer(std::vector<cv::Mat> &mats);
 
         /*
         Uses ImGui to render an image preview.
@@ -40,21 +40,21 @@ class OpticalFlowViewer
         /*The flow Mat to display*/
         cv::Mat flow;
         /*Dense optical flow algorithm*/
-        cv::Mat denseOpticalFlowMat(cv::Mat &prev, cv::Mat &next, int &pyr_size);
-        /*KLT optical flow algorithm*/
-        cv::Mat KLTOpticalFlow(cv::Mat &prev, cv::Mat &next, int &pyr_size);
+        void denseOpticalFlowMat(cv::Mat &prev, cv::Mat &next, cv::Mat &flow, int &pyr_size, int &window_size, int &iterations);
         /*Current frame index*/
         int currentFrame;
         /*Vector of frames as Mats*/
         std::vector<cv::Mat> frames;
         // int algorithm;
-        void updateFrame(int pyr_size);
+        void updateFrame(int pyr_size, int window_size, int iterations);
         
     private:
         /*This class relies on MatViewer to render the matrix*/
-        MatViewer* matViewer1;
+        MatViewer matViewer1;
         /*True if playing*/
         bool isPlaying = false;
         /*Pyramid size*/
         int pyr_size;
+        int window_size;
+        int iterations;
 };
