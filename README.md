@@ -2,7 +2,9 @@
 Motion tracking of feature points and dense optical flow
 
 ## Description
-This code takes video and calculates/displays the Farneback dense optical flow and KLT point tracking frame by frame using ImGui, GLFW, OpenCV and OpenGL. Input parameters can be updated in the UI.
+This project takes video and calculates/displays the Farneback dense optical flow and KLT point tracking frame by frame using ImGui, GLFW, OpenCV and OpenGL. Input parameters can be updated with sliders in the UI and the videos can be saved using a button.
+
+The UI template is based in the following code: [m516/CV-Sandbox](https://github.com/m516/CV-Sandbox/tree/master/src/09-OpenCV-Video-Template)
 
 ## Requirements
 - Working C++ compiler (C++ 17 or greater)
@@ -59,4 +61,14 @@ This code takes video and calculates/displays the Farneback dense optical flow a
   - open Command Prompt (or PowerShell) and navigate to the project build folder, then: `cd Debug`
   - in Debug, run the following command: `execute.exe <path to directory containing the images> <output file prefix> <minimum diameter> <maximum diameter> <threshold>`
     - ex. command: `getCircle.exe ../3_hough test 20 30 35` -->
+
+# Libraries and Licenses
+This work utilizes libraries whose licenses are as follows:
+|                           Name |                                                         Installation instructions                                                         | License                                                                            | Github Repository                            |
+| -----------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------- | :------------------------------------------- |
+|  [OpenCV](https://opencv.org/) |   [official instructions as of 7/13/2020 (volatile)](https://docs.opencv.org/master/df/d65/tutorial_table_of_content_introduction.html)   | [3-clause BSD License](https://opencv.org/license/)                                | [yes](https://github.com/opencv/opencv)      |
+| [GLAD](https://glad.dav1d.de/) | Included in project [(Unofficial instructions)](https://learnopengl.com/Getting-started/Creating-a-window) (path to KHR library modified) | [Varies](https://github.com/Dav1dde/glad#whats-the-license-of-glad-generated-code) | [Generator](https://github.com/Dav1dde/glad) |
+|  [GLFW](https://www.glfw.org/) |                        Included in project [(Official instructions)](https://github.com/glfw/glfw#compiling-glfw)                         | [zlib license](extern/glfw/LICENSE)                                                | [yes](https://github.com/glfw/glfw)          |
+|                          ImGui |                                                   Included in project (static library)                                                    | [MIT License](extern/imgui/LICENSE)                                                | [yes](https://github.com/ocornut/imgui)      |
+
 
