@@ -1,6 +1,7 @@
 #include "ui.hpp"
 #include "video_viewer.hpp"
 #include "optical_flow_viewer.hpp"
+#include "klt_viewer.hpp"
 
 namespace gui 
 {
@@ -12,6 +13,7 @@ namespace gui
 	// VideoCapture videoCapture1;
 	VideoViewer* videoViewer;
 	OpticalFlowViewer* optFlowViewer;
+	KLTViewer* kltViewer;
 
 	void setStyle() 
 	{
@@ -88,7 +90,8 @@ namespace gui
 			showDemoWindow = false,
 			showWindowSettingsEditor = false,
 			showVideoViewer = true,
-			showOpticalFlow = false;
+			showOpticalFlow = true,
+			showKLTViewer = false;
 
 		void createMenuBar() 
 		{
@@ -98,6 +101,7 @@ namespace gui
 				{
 					ImGui::MenuItem("Video Viewer", 0, &showVideoViewer);
 					ImGui::MenuItem("Optical Flow", 0, &showOpticalFlow);
+					ImGui::MenuItem("KLT", 0, &showKLTViewer);
 					ImGui::MenuItem("Window Settings", 0, &showWindowSettingsEditor);
 					ImGui::Separator();
 					ImGui::MenuItem("Style editor", 0, &showStyleEditor);
@@ -130,7 +134,6 @@ namespace gui
 			ImGuiWindowFlags flags = ImGuiWindowFlags_AlwaysAutoResize;
 			ImGui::Begin("Video", &showVideoViewer, flags);
 			videoViewer->addToGUI();
-			// opticalFlowViewer->addToGUI();
 			ImGui::End();
 		}
 
@@ -141,6 +144,14 @@ namespace gui
 			optFlowViewer->addToGUI();
 			ImGui::End();
 		}
+
+		void createKLTWindow()
+		{
+			ImGuiWindowFlags flags = ImGuiWindowFlags_AlwaysAutoResize;
+			ImGui::Begin("KLT", &showKLTViewer, flags);
+			kltViewer->addToGUI();
+			ImGui::End();
+		}
 	}
 
 	void populateUI()
@@ -149,6 +160,7 @@ namespace gui
 		if (UI::showDemoWindow) ImGui::ShowDemoWindow();
 		if (UI::showVideoViewer) UI::createImageViewerWindow();
 		if (UI::showOpticalFlow) UI::createOpticalFlowWindow();
+		if (UI::showKLTViewer) UI::createKLTWindow();
 		if (UI::showStyleEditor) ImGui::ShowStyleEditor();
 		if (UI::showWindowSettingsEditor) UI::createWindowSettingsWindow();
 	}
@@ -184,6 +196,7 @@ namespace gui
 		}
 		
 		videoViewer = new VideoViewer(videoCapture);
+		kltViewer = new KLTViewer(captureMats);
 		optFlowViewer = new OpticalFlowViewer(captureMats);
 	}
 }

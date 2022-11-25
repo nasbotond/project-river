@@ -14,6 +14,7 @@ set(SOURCES
   ${source_dir}/ui.cpp
   ${source_dir}/video_viewer.cpp
   ${source_dir}/optical_flow_viewer.cpp
+  ${source_dir}/klt_viewer.cpp
   ${imgui_dir}/imgui.cpp
   ${imgui_dir}/imgui_demo.cpp
   ${imgui_dir}/imgui_draw.cpp

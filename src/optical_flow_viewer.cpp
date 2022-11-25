@@ -6,9 +6,8 @@ OpticalFlowViewer::OpticalFlowViewer(std::vector<cv::Mat>& mats)
     mat_curr = frames.at(0);
     mat_next = frames.at(1);
     currentFrame = 0;
-
-    flow = denseOpticalFlowMat(mat_curr, mat_next);
-    // flow = KLTOpticalFlow(mat_curr, mat_next);
+    pyr_size = 2;
+    flow = denseOpticalFlowMat(mat_curr, mat_next, pyr_size);
 
 	matViewer1 = new MatViewer("Optical Flow Video", flow);
 }
@@ -46,7 +45,7 @@ void OpticalFlowViewer::addToGUI(bool manualPlayback, bool imageControls)
         }
     }
 
-    if (isPlaying)
+    if(isPlaying)
     {
         if (!nextFrame())
         {
@@ -54,12 +53,27 @@ void OpticalFlowViewer::addToGUI(bool manualPlayback, bool imageControls)
             setCurrentFrame(1);
         }
     }
+
+    if(ImGui::SliderInt("Pyramid Levels", &pyr_size, 2, 10))
+    {
+        updateFrame(pyr_size);
+    }
+
     matViewer1->addToGUI(imageControls);
 }
 
 int OpticalFlowViewer::getCurrentFrame()
 {
     return currentFrame;
+}
+
+void OpticalFlowViewer::updateFrame(int pyr_size)
+{
+    std::cout << "update" << std::endl;
+    std::cout << pyr_size << std::endl;
+    flow = denseOpticalFlowMat(mat_curr, mat_next, pyr_size);
+
+	matViewer1->update();
 }
 
 void OpticalFlowViewer::setCurrentFrame(int desiredFrame)
@@ -91,9 +105,8 @@ bool OpticalFlowViewer::nextFrame()
 		std::cerr << "Mat is empty" << std::endl;
 		return false;
 	}
-  
-    flow = denseOpticalFlowMat(mat_curr, mat_next);
-    // flow = KLTOpticalFlow(mat_curr, mat_next);
+
+    flow = denseOpticalFlowMat(mat_curr, mat_next, pyr_size);
 
 	matViewer1->update();
 	return true;
@@ -104,18 +117,16 @@ int OpticalFlowViewer::numFrames()
     return frames.size();
 }
 
-cv::Mat OpticalFlowViewer::denseOpticalFlowMat(cv::Mat &prev, cv::Mat &next)
+cv::Mat OpticalFlowViewer::denseOpticalFlowMat(cv::Mat &prev, cv::Mat &next, int &pyr_size)
 {
     cv::Mat prvs;
-    // cv::cvtColor(prev, prvs, cv::COLOR_RGB2GRAY);
     cv::cvtColor(prev, prvs, cv::COLOR_BGR2GRAY);
 
     cv::Mat nxt, original;
-    // cv::cvtColor(next, nxt, cv::COLOR_RGB2GRAY);
     cv::cvtColor(next, nxt, cv::COLOR_BGR2GRAY);
     cv::Mat flowt(prvs.size(), CV_32FC2);
 
-    calcOpticalFlowFarneback(prvs, nxt, flowt, 0.5, 3, 15, 3, 5, 1.2, 0);
+    calcOpticalFlowFarneback(prvs, nxt, flowt, 0.5, pyr_size, 15, 3, 5, 1.2, 0);
     next.copyTo(original);
 
     // By y += 5, x += 5 you can specify the grid 
@@ -134,7 +145,7 @@ cv::Mat OpticalFlowViewer::denseOpticalFlowMat(cv::Mat &prev, cv::Mat &next)
     return original;
 }
 
-cv::Mat OpticalFlowViewer::KLTOpticalFlow(cv::Mat &prev, cv::Mat &next)
+cv::Mat OpticalFlowViewer::KLTOpticalFlow(cv::Mat &prev, cv::Mat &next, int& pyr_size)
 {
     // Create some random colors
     std::vector<cv::Scalar> colors;
@@ -150,8 +161,8 @@ cv::Mat OpticalFlowViewer::KLTOpticalFlow(cv::Mat &prev, cv::Mat &next)
     cv::Mat prvs;
     std::vector<cv::Point2f> p0, p1;
     // Take first frame and find corners in it
-    cvtColor(prev, prvs, cv::COLOR_BGR2GRAY);
-    goodFeaturesToTrack(prvs, p0, 100, 0.3, 7, cv::Mat(), 7, false, 0.04);
+    cv::cvtColor(prev, prvs, cv::COLOR_BGR2GRAY);
+    cv::goodFeaturesToTrack(prvs, p0, 100, 0.3, 7, cv::Mat(), 7, false, 0.04);
 
     // Create a mask image for drawing purposes
     cv::Mat mask = cv::Mat::zeros(prev.size(), prev.type());
@@ -164,7 +175,7 @@ cv::Mat OpticalFlowViewer::KLTOpticalFlow(cv::Mat &prev, cv::Mat &next)
     std::vector<uchar> status;
     std::vector<float> err;
     cv::TermCriteria criteria = cv::TermCriteria((cv::TermCriteria::COUNT) + (cv::TermCriteria::EPS), 10, 0.03);
-    cv::calcOpticalFlowPyrLK(prvs, nxt, p0, p1, status, err, cv::Size(15,15), 2, criteria);
+    cv::calcOpticalFlowPyrLK(prvs, nxt, p0, p1, status, err, cv::Size(15,15), pyr_size, criteria);
     std::vector<cv::Point2f> good_new;
 
     for(uint i = 0; i < p0.size(); i++)
