@@ -174,8 +174,8 @@ namespace gui
 		// Get an image name
 		std::string filename = "../sec07_mot_mpg/";
 		// filename += "halak1.mpg";
-		// filename += "motor.avi";
-		filename += "fishes.avi";
+		filename += "motor.avi";
+		// filename += "fishes.avi";
 		videoCapture = cv::VideoCapture(filename);
 		std::vector<cv::Mat> captureMats = std::vector<cv::Mat>(videoCapture.get(cv::CAP_PROP_FRAME_COUNT));
 

@@ -158,7 +158,7 @@ void KLTViewer::calculateKLT(std::vector<cv::Mat> &originalFrames, std::vector<c
     frameIndex++;
 
     cv::cvtColor(old_frame, old_gray, cv::COLOR_BGR2GRAY);
-    cv::goodFeaturesToTrack(old_gray, p0, max_corners, 0.3, min_distance, cv::Mat(), block_size, false, 0.04);
+    cv::goodFeaturesToTrack(old_gray, p0, max_corners, 0.1, min_distance, cv::Mat(), block_size, false, 0.04);
 
     // Create a mask image for drawing purposes
     cv::Mat mask = cv::Mat::zeros(old_frame.size(), old_frame.type());
@@ -185,9 +185,9 @@ void KLTViewer::calculateKLT(std::vector<cv::Mat> &originalFrames, std::vector<c
             {
                 good_new.push_back(p1[i]);
                 // draw the tracks
-                cv::line(mask, p1[i], p0[i], colors[i], 2);
-                cv::circle(frame_copy, p1[i], 5, colors[i], -1);
-                // cv::circle(frame_copy, cv::Point2f(100, 100), 20, cv::Scalar(0,0,0), 10);
+                // cv::line(mask, p1[i], p0[i], colors[i], 2);
+                // cv::circle(frame_copy, p1[i], 5, colors[i], -1);
+                cv::circle(frame_copy, p1[i], 4, cv::Scalar(0, 0, 255), -1);
             }
         }
         cv::Mat img;
