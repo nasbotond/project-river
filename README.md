@@ -17,7 +17,7 @@ The UI template is based in the following code: [m516/CV-Sandbox](https://github
 - Improve UI by allowing window resizing
 - Add more functionality to dense optical flow visualization
 
-## Example Results
+## Operation
 ![](example_results/execution.gif)
 
 <!-- | ![output_blood_combined](example_results/output_blood_combined.png) | 
