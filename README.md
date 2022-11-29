@@ -14,9 +14,11 @@ The UI template is based in the following code: [m516/CV-Sandbox](https://github
 - GLFW3
 
 ## Future Works
-
+- Improve UI by allowing window resizing
+- Add more functionality to dense optical flow visualization
 
 ## Example Results
+![](example_results/operation.gif)
 
 <!-- | ![output_blood_combined](example_results/output_blood_combined.png) | 
 |:--:| 
