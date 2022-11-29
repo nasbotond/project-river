@@ -44,7 +44,6 @@ if(APPLE)
     )
 endif(APPLE)
 
-
 include_directories(${imgui_dir})
 add_executable(execute ${SOURCES})
 target_link_libraries(execute ${EXTRA_LIBS})
