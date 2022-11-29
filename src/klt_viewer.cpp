@@ -208,7 +208,8 @@ void KLTViewer::calculateKLT(std::vector<cv::Mat> &originalFrames, std::vector<c
 
 void KLTViewer::calculateKLTToVideo(std::vector<cv::Mat> &originalFrames, int &pyr_size, int &window_size, int &max_corners, int &min_distance, int &block_size)
 {
-    const std::string NAME = "../optical_flow.avi";
+    std::string name_suffix = "_" + std::to_string(pyr_size) + "_" + std::to_string(window_size) + "_" + std::to_string(max_corners) + "_" + std::to_string(min_distance) + "_" + std::to_string(block_size);
+    const std::string NAME = "../example_results/KLT" + name_suffix + ".avi";
     int ex = static_cast<int>(cv::VideoWriter::fourcc('M','J','P','G'));
 
     // Transform from int to char via Bitwise operators

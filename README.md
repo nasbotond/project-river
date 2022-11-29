@@ -2,7 +2,7 @@
 Motion tracking of feature points and dense optical flow
 
 ## Description
-This project takes video and calculates/displays the Farneback dense optical flow and KLT point tracking frame by frame using ImGui, GLFW, OpenCV and OpenGL. Input parameters can be updated with sliders in the UI and the videos can be saved using a button.
+This project takes video and calculates/displays the Farneback dense optical flow and KLT point tracking frame by frame using ImGui, GLFW, OpenCV and OpenGL. Input parameters for both algorithms can be updated with sliders in the UI and the videos can be saved using a button.
 
 The UI template is based in the following code: [m516/CV-Sandbox](https://github.com/m516/CV-Sandbox/tree/master/src/09-OpenCV-Video-Template)
 
@@ -12,9 +12,6 @@ The UI template is based in the following code: [m516/CV-Sandbox](https://github
 - OpenCV (version >= 4.0.0)
 - OpenGL (version >= 3.0.0)
 - GLFW3
-
-## Usage
-- `./execute`
 
 ## Future Works
 

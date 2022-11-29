@@ -172,7 +172,7 @@ namespace gui
 
 		// Load the video
 		// Get an image name
-		std::string filename = "../sec07_mot_mpg/";
+		std::string filename = "../04_flow/";
 		// filename += "halak1.mpg";
 		filename += "motor.avi";
 		// filename += "fishes.avi";

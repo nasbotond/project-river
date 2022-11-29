@@ -163,7 +163,8 @@ void OpticalFlowViewer::denseOpticalFlowMat(cv::Mat &prev, cv::Mat &next, cv::Ma
 
 void OpticalFlowViewer::denseOpticalFlowToVideo(std::vector<cv::Mat> &frames, int &pyr_size, int &window_size, int &iterations)
 {
-    const std::string NAME = "../optical_flow_.avi";
+    std::string name_suffix = "_" + std::to_string(pyr_size) + "_" + std::to_string(window_size) + "_" + std::to_string(iterations);
+    const std::string NAME = "../example_results/dense" + name_suffix + ".avi";
     int ex = static_cast<int>(cv::VideoWriter::fourcc('M','J','P','G'));
 
     // Transform from int to char via Bitwise operators
