@@ -5,7 +5,7 @@ set ( CMAKE_CXX_STANDARD 17 )
 
 set ( source_dir "${CMAKE_CURRENT_SOURCE_DIR}/src/" )
 set ( include_dir "${CMAKE_CURRENT_SOURCE_DIR}/include/project-river/" )
-set ( imgui_dir "${CMAKE_CURRENT_SOURCE_DIR}/imgui/" )
+set ( imgui_dir "${CMAKE_CURRENT_SOURCE_DIR}/libs/imgui/" )
 
 set(SOURCES
   ${source_dir}/app.cpp
